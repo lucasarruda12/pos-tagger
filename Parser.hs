@@ -7,6 +7,12 @@ import POS
 
 type TaggedPOS = (Tag, POS)
 
+-- A tag is one of those 36 Penn Treebank
+-- tags. Pontuation is singled out because
+-- of finicky haskell Read derivation
+tag :: Parser Tag
+tag = pontuation <|> (Parser reads)
+
 -- Pontutation is one of: , `` . :
 pontuation :: Parser Tag
 pontuation = fmap (\x -> P) 

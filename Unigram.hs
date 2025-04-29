@@ -9,6 +9,7 @@ import Control.Exception (catch, IOException)
 
 newtype UnigramTree = UT (Map.Map String (Map.Map Tag Int))
 
+-- <For pretty-printing>
 instance Show UnigramTree where
   show (UT outerMap) = intercalate "\n" $
     concatMap printEntry (Map.toList outerMap)
@@ -16,14 +17,19 @@ instance Show UnigramTree where
       printEntry :: (String, Map Tag Int) -> [String]
       printEntry (str, tagMap) =
         (str ++ ":") : fmap (\(tag, count) -> "-> " ++ show tag ++ ": " ++ show count) (Map.toList tagMap)
+-- </For pretty-printting>
 
-add :: UnigramTree -> String -> Tag -> UnigramTree
-add (UT m) s t = case Map.lookup s m of
-  Nothing -> UT $ Map.insert s (Map.singleton t 1) m
-  Just m' -> UT $ Map.insert s (Map.adjust (+1) t m') m
+-- To add new words to my tree
+-- add :: UnigramTree -> String -> Tag -> UnigramTree
+-- add (UT m) s t = case Map.lookup s m of
+--   Nothing -> UT $ Map.insert s (Map.singleton t 1) m
+--   Just m' -> UT $ Map.insert s (Map.adjust (+1) t m') m
+
+add :: String -> Tag -> UnigramTree -> UnigramTree
+add s t (UT m) = UT $ insertWith (unionWith (+)) s (singleton t 1) m
 
 populate :: UnigramTree -> Maybe [TaggedPOS] -> UnigramTree
-populate ut (Just ((t, p):xs))  = add (populate ut (Just xs)) p t
+populate ut (Just ((t, p):xs))  = add p t (populate ut (Just xs))
 populate ut _                   = ut
 
 readAndPopulate :: UnigramTree -> IO UnigramTree
