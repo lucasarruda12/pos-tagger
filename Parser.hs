@@ -19,6 +19,12 @@ pontuation = fmap (\x -> P)
 word :: Parser String
 word = many (sat (/= '_'))
 
+parse' :: Parser a -> String -> Maybe a
+parse' p s =
+  case parse p s of
+    [(x, "")] -> Just x
+    _         -> Nothing
+
 taggedpos :: Parser TaggedPOS
 taggedpos = do
   w <- word
