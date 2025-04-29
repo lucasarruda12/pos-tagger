@@ -1,7 +1,6 @@
 module Main where
 
 import Parser
-import PrimitiveParser
 import Tag
 import Data.Map as Map
 import Data.List (intercalate)
