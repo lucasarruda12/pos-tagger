@@ -12,9 +12,10 @@ type TaggedPOS = (Tag, POS)
 -- a $ are singled out because of finicky
 -- haskell syntax and Read derivation
 tag :: Parser Tag
-tag = pontuation <|> (Parser reads)
+tag = pontuation 
   <|> fmap (const PRPs) (string "PRP$")
   <|> fmap (const WPs) (string "WP$")
+  <|> (Parser reads)
 
 -- Pontutation is one of: , `` . :
 pontuation :: Parser Tag
@@ -23,7 +24,11 @@ pontuation = fmap (\x -> P)
     string "``" <|> 
     string "." <|>
     string ":" <|>
-    string "''")
+    string "''" <|>
+    string "#" <|>
+    string "-LRB-" <|>
+    string "-RRB-" <|>
+    string "$")
 
 -- A word is any string of characters
 -- except for an underscore
