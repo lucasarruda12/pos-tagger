@@ -4,8 +4,6 @@ import Common.Parser
 import Common.Tag
 import Common.POS
 import qualified Data.Map as Map
-import Data.List (intercalate)
-import Control.Monad.State
 import Control.Exception (catch, IOException)
 
 newtype UnigramTree = UT (Map.Map POS (Map.Map Tag Int))
@@ -43,7 +41,7 @@ prune (UT m) = Map.toList $ fmap (fst . takeLargest) m
 
 prettyPrintList :: [(POS, Tag)] -> String
 prettyPrintList []          = ""
-prettyPrintList ((a, b):xs) = a ++ " " ++ show b ++ "\n" ++ prettyPrintList xs
+prettyPrintList ((a, b):xs) = a ++ "_" ++ show b ++ "\n" ++ prettyPrintList xs
 
 -- main = pure ()
 main :: IO ()

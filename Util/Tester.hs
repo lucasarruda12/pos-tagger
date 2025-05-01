@@ -3,18 +3,17 @@ module Main where
 import Common.Parser
 import Common.POS
 import Control.Exception (catch, IOException)
+import Control.Monad (unless)
+import Data.List (intercalate)
 
-tester :: IO [POS]
-tester = catch 
-  (do 
-    l <- getLine
-    mt <- pure (parse' line l) 
-    tps <- case mt of
-      Nothing -> pure []
-      Just tps -> pure tps
-    pure $ fmap snd tps)
-  (\e -> do 
-    let _ = e :: IOException
-    pure [])
+import System.IO
 
-main = pure ()
+loop :: (String -> String) -> IO ()
+loop f = do
+  eof <- isEOF
+  unless eof (do 
+    getLine >>= (putStrLn . f)
+    loop f)
+
+main = loop $ 
+  (intercalate " ") . (fmap snd) . (parse' line)

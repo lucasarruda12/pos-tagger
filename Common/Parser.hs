@@ -121,8 +121,8 @@ sepBy p sep = (p >>= \x -> many (sep >> p) >>= \xs -> return (x:xs)) <|> pure []
 -- parsed in more than one ways
 -- (should probably have made parser a function
 -- into Maybe, but it is now too late)
-parse' :: Parser a -> String -> Maybe a
+parse' :: Parser a -> String -> a
 parse' p s =
   case parse p s of
-    [(x, "")] -> Just x
-    _         -> Nothing
+    [(x, "")] -> x
+    _         -> error ("failed parsing: " ++ s)
