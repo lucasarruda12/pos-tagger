@@ -13,13 +13,13 @@ add :: UnigramTree -> TaggedPOS -> UnigramTree
 add ut (t, p) = Map.insert p t ut
   
 populateSearchTree :: Handle -> UnigramTree -> IO UnigramTree
-populateSearchTree handle ut =
-  (do
-    -- Assume that every line is a tagged part of speech
-    tp  <- fmap (parse' taggedpos) (hGetLine handle)
-    populateSearchTree handle (ut `add` tp))
-  -- Stop the loop when reach EOF
-  `catch` (\(_ :: IOException) -> pure ut)
+populateSearchTree handle ut = do
+  isEof <- hIsEOF handle
+  if isEof then pure ut else
+    hGetLine handle >>= -- read a line (assumed to be POS_TAG)
+    pure . parse' taggedpos >>= -- parse the tpos
+    pure . add ut >>= -- add it to the searchTree
+    populateSearchTree handle -- keep it going!
 
 splitOn :: Eq a => a -> [a] -> [[a]]
 splitOn _ [] = [[]]
@@ -33,35 +33,34 @@ splitOn delim xs = go xs
             (z:zs) -> (y : z) : zs
             []     -> [[y]]  -- Should not happen
 
+-- Maybe Tag to deal with the possibility that ive
+-- not seen the word before. when using the UNK-tagged
+-- input files, should always return a Just-valued Tag.
 tagSentence :: UnigramTree -> [POS] -> [(Maybe Tag, POS)]
 tagSentence ut ps = fmap (tagWord ut) ps
   where 
     tagWord :: UnigramTree -> POS -> (Maybe Tag, POS)
-    tagWord ut p = ((Map.lookup p ut), p)
+    tagWord ut p = 
+      case ((Map.lookup p ut), p) of
+      Just t -> Just t
+      Nothing -> Map.lookup "UNK" ut
 
 prettyPrint :: [(Maybe Tag, POS)] -> String
 prettyPrint [] = ""
 prettyPrint ((mt, p):xs) = case mt of
-  Nothing   -> p ++ "_P " ++ prettyPrint xs
   (Just t)  -> p ++ "_" ++ show t ++ " " ++ prettyPrint xs
-
--- Since it is my first time writting a largeish
--- haskell program, some parts of it are very experimental.
--- This is one of them. I did this differently in other files
--- and don't know if i'll go back and change every time
--- i find a better way to do it
-loop :: IO () -> IO ()
-loop = sequence_ . repeat 
+  Nothing   -> p ++ "_XX " ++ prettyPrint xs -- This part should be unreachable when using the UNK-tagged input files
 
 main :: IO ()
 main = do
   handle <- openFile "./Unigram/Driver.data" ReadMode 
   ut     <- populateSearchTree handle (Map.empty)
 
-  loop (do 
-    ws     <- fmap (splitOn ' ') getLine
-    tags   <- pure $ tagSentence ut ws
-    putStrLn (prettyPrint tags))
+  sequence_ $ repeat ( 
+    getLine >>= -- read a line from stdin
+    pure . splitOn ' ' >>= -- split at the spaces
+    pure . tagSentence ut >>= -- tag the words
+    putStrLn . prettyPrint) -- and put it to stdout
 
   hClose handle
 

@@ -37,6 +37,7 @@ prune (UM m) = Map.toList $ fmap (fst . takeLargest) m
 
 prettyPrint :: [(POS, Tag)] -> String
 prettyPrint []          = ""
+prettyPrint ((a,b):[])  = a ++ "_" ++ show b
 prettyPrint ((a, b):xs) = a ++ "_" ++ show b ++ "\n" ++ prettyPrint xs
 
 main :: IO ()

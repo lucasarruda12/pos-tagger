@@ -1,19 +1,15 @@
 module Main where
 
 import Common.Parser
-import Common.POS
-import Control.Exception (catch, IOException)
-import Control.Monad (unless)
 import Data.List (intercalate)
-
 import System.IO
 
-loop :: (String -> String) -> IO ()
-loop f = do
+main = do 
   eof <- isEOF
-  unless eof (do 
-    getLine >>= (putStrLn . f)
-    loop f)
-
-main = loop $ 
-  (intercalate " ") . (fmap snd) . (parse' line)
+  if eof then pure () else do
+    getLine >>=                -- read from stdin
+        pure . parse' line >>=     -- parse the line read
+        pure . fmap snd >>=        -- remove the tags
+        pure . intercalate " " >>= -- intercalate with spaces
+        putStrLn                   -- write to stdout
+    main -- and do it again!
