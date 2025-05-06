@@ -13,14 +13,13 @@ add :: UnigramTree -> TaggedPOS -> UnigramTree
 add ut (t, p) = Map.insert p t ut
   
 populateSearchTree :: Handle -> UnigramTree -> IO UnigramTree
-populateSearchTree handle ut = catch
+populateSearchTree handle ut =
   (do
+    -- Assume that every line is a tagged part of speech
     tp  <- fmap (parse' taggedpos) (hGetLine handle)
-    ut' <- pure $ ut `add` tp
-    populateSearchTree handle ut')
-  (\e -> do 
-    let _ = e :: IOException
-    pure ut)
+    populateSearchTree handle (ut `add` tp))
+  -- Stop the loop when reach EOF
+  `catch` (\(_ :: IOException) -> pure ut)
 
 splitOn :: Eq a => a -> [a] -> [[a]]
 splitOn _ [] = [[]]
@@ -34,29 +33,35 @@ splitOn delim xs = go xs
             (z:zs) -> (y : z) : zs
             []     -> [[y]]  -- Should not happen
 
-tagWords :: UnigramTree -> [POS] -> [TaggedPOS]
-tagWords ut ps = fmap (tagWord ut) ps
+tagSentence :: UnigramTree -> [POS] -> [(Maybe Tag, POS)]
+tagSentence ut ps = fmap (tagWord ut) ps
   where 
-    tagWord :: UnigramTree -> POS -> TaggedPOS
-    tagWord ut p = case Map.lookup p ut of
-      Nothing   -> (CC, p)
-      (Just t)  -> (t, p)
+    tagWord :: UnigramTree -> POS -> (Maybe Tag, POS)
+    tagWord ut p = ((Map.lookup p ut), p)
 
+prettyPrint :: [(Maybe Tag, POS)] -> String
+prettyPrint [] = ""
+prettyPrint ((mt, p):xs) = case mt of
+  Nothing   -> p ++ "_P " ++ prettyPrint xs
+  (Just t)  -> p ++ "_" ++ show t ++ " " ++ prettyPrint xs
+
+-- Since it is my first time writting a largeish
+-- haskell program, some parts of it are very experimental.
+-- This is one of them. I did this differently in other files
+-- and don't know if i'll go back and change every time
+-- i find a better way to do it
 loop :: IO () -> IO ()
 loop = sequence_ . repeat 
 
 main :: IO ()
 main = do
-  hSetBuffering stdout NoBuffering
-
   handle <- openFile "./Unigram/Driver.data" ReadMode 
   ut     <- populateSearchTree handle (Map.empty)
-  -- putStrLn (show ut)
 
   loop (do 
     ws     <- fmap (splitOn ' ') getLine
-    tags   <- pure $ tagWords ut ws
-    putStrLn (show tags))
+    tags   <- pure $ tagSentence ut ws
+    putStrLn (prettyPrint tags))
 
   hClose handle
 

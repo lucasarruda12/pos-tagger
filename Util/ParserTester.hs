@@ -1,3 +1,7 @@
+-- I wanted to find out if i had any errors
+-- when parsing the lines of the test set.
+-- The ony thing this does is tell me if
+-- a line was succefully parsed.
 module Main where
 
 import Common.Parser

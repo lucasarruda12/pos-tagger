@@ -4,49 +4,45 @@ import Common.Parser
 import Common.Tag
 import Common.POS
 import qualified Data.Map as Map
-import Control.Exception (catch, IOException)
+import System.IO
 
-newtype UnigramTree = UT (Map.Map POS (Map.Map Tag Int))
+newtype UnigramMap = UM (Map.Map POS (Map.Map Tag Int))
   deriving (Show)
 
-add :: TaggedPOS -> UnigramTree -> UnigramTree
-add (t, p) (UT m) = UT $ Map.insertWith (Map.unionWith (+)) p (Map.singleton t 1) m
+-- Add the information of a single Tagged Part-of-speech
+-- to the Map. create a new entry for new parts of speech
+-- and add 1 to the count of that tag for the known ones.
+add :: TaggedPOS -> UnigramMap -> UnigramMap
+add (t, p) (UM m) = UM $ Map.insertWith (Map.unionWith (+)) p (Map.singleton t 1) m
 
-addMany :: [TaggedPOS] -> UnigramTree -> UnigramTree
-addMany (tp:tps) ut = add tp (addMany tps ut)
-addMany [] ut = ut
+readUntilEOF :: UnigramMap -> IO UnigramMap
+readUntilEOF ut = do
+  eof <- isEOF
+  if eof then pure ut else
+    getLine >>= -- Read line from stdin
+    pure . (parse' line) >>= -- Parse all the tpos
+    pure . (foldr add ut) >>= -- add them to ut
+    readUntilEOF -- Do it again!
 
-readUntilEOF :: UnigramTree -> IO UnigramTree
-readUntilEOF ut = catch
-  (do l   <- getLine 
-      mt  <- pure (parse' line l)
-      ut' <- case mt of 
-              Nothing -> pure ut
-              (Just tps) -> pure $ addMany tps ut
-      readUntilEOF ut')
-  (\e -> do 
-    let _ = e :: IOException
-    pure ut)
-
-larger :: (Tag, Int) -> (Tag, Int) -> (Tag, Int)
-larger t1@(_,x) t2@(_,y) 
-  | x > y     = t1
-  | otherwise = t2
-
-prune :: UnigramTree -> [(POS, Tag)]
-prune (UT m) = Map.toList $ fmap (fst . takeLargest) m
+prune :: UnigramMap -> [(POS, Tag)]
+prune (UM m) = Map.toList $ fmap (fst . takeLargest) m
   where 
     takeLargest :: Map.Map Tag Int -> (Tag, Int)
     takeLargest = (foldr larger (CC, 0)) . Map.toList
 
-prettyPrintList :: [(POS, Tag)] -> String
-prettyPrintList []          = ""
-prettyPrintList ((a, b):xs) = a ++ "_" ++ show b ++ "\n" ++ prettyPrintList xs
+    larger :: (Tag, Int) -> (Tag, Int) -> (Tag, Int)
+    larger t1@(_,x) t2@(_,y) 
+      | x > y     = t1
+      | otherwise = t2
 
--- main = pure ()
+prettyPrint :: [(POS, Tag)] -> String
+prettyPrint []          = ""
+prettyPrint ((a, b):xs) = a ++ "_" ++ show b ++ "\n" ++ prettyPrint xs
+
 main :: IO ()
-main = do
-  ut  <- readUntilEOF (UT Map.empty)
-  p   <- pure (prune ut) 
-  putStrLn (prettyPrintList p)
+main =
+  readUntilEOF (UM Map.empty) >>= -- Read stdin into a map
+  pure . prune >>=                -- prune only the most common Tag
+  pure . prettyPrint >>=          -- show lines as pos_tag\n
+  putStrLn                        -- put it to stdout
   
