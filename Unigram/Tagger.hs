@@ -6,19 +6,20 @@ import Common.Tag
 import qualified Data.Map as Map
 import Control.Exception (catch, IOException)
 import System.IO
+import System.Environment (getArgs)
 
-type UnigramTree = Map.Map POS Tag
+type UnigramMap = Map.Map POS Tag
 
-add :: UnigramTree -> TaggedPOS -> UnigramTree
-add ut (t, p) = Map.insert p t ut
+add :: UnigramMap -> TaggedPOS -> UnigramMap
+add um (t, p) = Map.insert p t um
   
-populateSearchTree :: Handle -> UnigramTree -> IO UnigramTree
-populateSearchTree handle ut = do
+populateSearchTree :: Handle -> UnigramMap -> IO UnigramMap
+populateSearchTree handle um = do
   isEof <- hIsEOF handle
-  if isEof then pure ut else
+  if isEof then pure um else
     hGetLine handle >>= -- read a line (assumed to be POS_TAG)
     pure . parse' taggedpos >>= -- parse the tpos
-    pure . add ut >>= -- add it to the searchTree
+    pure . add um >>= -- add it to the searchTree
     populateSearchTree handle -- keep it going!
 
 splitOn :: Eq a => a -> [a] -> [[a]]
@@ -36,14 +37,14 @@ splitOn delim xs = go xs
 -- Maybe Tag to deal with the possibility that ive
 -- not seen the word before. when using the UNK-tagged
 -- input files, should always return a Just-valued Tag.
-tagSentence :: UnigramTree -> [POS] -> [(Maybe Tag, POS)]
-tagSentence ut ps = fmap (tagWord ut) ps
+tagSentence :: UnigramMap -> [POS] -> [(Maybe Tag, POS)]
+tagSentence um ps = fmap (tagWord um) ps
   where 
-    tagWord :: UnigramTree -> POS -> (Maybe Tag, POS)
-    tagWord ut p = 
-      case ((Map.lookup p ut), p) of
-      Just t -> Just t
-      Nothing -> Map.lookup "UNK" ut
+    tagWord :: UnigramMap -> POS -> (Maybe Tag, POS)
+    tagWord um p = 
+      case (Map.lookup p um) of
+      Just t -> (Just t, p)
+      Nothing -> (Map.lookup "UNK" um, p)
 
 prettyPrint :: [(Maybe Tag, POS)] -> String
 prettyPrint [] = ""
@@ -53,13 +54,14 @@ prettyPrint ((mt, p):xs) = case mt of
 
 main :: IO ()
 main = do
-  handle <- openFile "./Unigram/Driver.data" ReadMode 
-  ut     <- populateSearchTree handle (Map.empty)
+  driverFile <- fmap head getArgs
+  handle <- openFile driverFile ReadMode 
+  um     <- populateSearchTree handle (Map.empty)
 
   sequence_ $ repeat ( 
     getLine >>= -- read a line from stdin
     pure . splitOn ' ' >>= -- split at the spaces
-    pure . tagSentence ut >>= -- tag the words
+    pure . tagSentence um >>= -- tag the words
     putStrLn . prettyPrint) -- and put it to stdout
 
   hClose handle
