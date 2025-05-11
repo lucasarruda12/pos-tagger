@@ -5,17 +5,21 @@ default:
 	echo "sorry. No default"
 
 # Util
-tester:
+Tester:
 	${GHC} -outputdir=${OUT} -o tester.out ./Util/Tester.hs
 
-FindLonelyWords:
-	${GHC} -outputdir=${OUT} -o FindLonelyWords.out ./Util/replaceUnknownWords/FindLonelyWords.hs
+BuildConfusionMatrix:
+	${GHC} -outputdir=${OUT} -o tester.out ./Util/ConfusionMatrix.hs
 
 # Unigram
-unigramDriver:
-	${GHC} -outputdir=${OUT} -o unigramDriver.out ./Unigram/Driver.hs
+stupidUnigramDriver:
+	${GHC} -outputdir=${OUT} -o unigramDriver.out ./Unigram/stupid/Driver.hs
 
-unigramTagger:
-	${GHC} -outputdir=${OUT} -o unigramTagger.out ./Unigram/Tagger.hs
+stupidUnigramTagger:
+	${GHC} -outputdir=${OUT} -o unigramTagger.out ./Unigram/stupid/Tagger.hs
 
+unkUnigramDriver:
+	${GHC} -outputdir=${OUT} -o unigramDriver.out ./Unigram/unknown/Driver.hs
 
+unkUnigramTagger:
+	${GHC} -outputdir=${OUT} -o unigramTagger.out ./Unigram/unknown/Tagger.hs
