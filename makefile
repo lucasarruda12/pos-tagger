@@ -2,14 +2,14 @@ GHC="ghc"
 OUT="./out"
 
 default:
-	echo "sorry. No default"
+	echo "sorry"
 
 # Util
 Tester:
 	${GHC} -outputdir=${OUT} -o tester.out ./Util/Tester.hs
 
 BuildConfusionMatrix:
-	${GHC} -outputdir=${OUT} -o tester.out ./Util/ConfusionMatrix.hs
+	${GHC} -outputdir=${OUT} -o bcm.out ./Util/ConfusionMatrix.hs
 
 # Unigram
 stupidUnigramDriver:
