@@ -35,7 +35,7 @@ prettyPrint = foldr ((++) . showtagtagint) "" . asList
         | predicted <- [CC .. P], real <- [CC .. P] ]
 
     showtagtagint :: (Tag, Tag, Int) -> String
-    showtagtagint (t1, t2, i) = show t1 ++ " " ++ show t2 ++ " " ++ show i ++ "\n"
+    showtagtagint (t1, t2, i) = show (toNat t1) ++ " " ++ show (toNat t2) ++ " " ++ show i ++ "\n"
 
 main :: IO ()
 main = do

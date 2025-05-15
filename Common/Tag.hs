@@ -1,5 +1,7 @@
 module Common.Tag where
 
+import Data.List (elemIndex)
+
 data Tag = CC | CD | DT | EX | FW | IN | JJ | JJR   | JJS   | LS  | MD  | NN  | NNS | NNP | NNPS | PDT | POS | PRP | PRPs | RB  | RBR | RBS | RP  | SYM | TO  | UH  | VB  | VBD | VBG | VBN | VBP | VBZ | WDT | WP  | WPs | WRB | P | XX
   deriving (Read, Eq, Ord, Enum)
 
@@ -43,3 +45,8 @@ instance Show Tag where
   show P   = "P"
   show XX  = "XX"
 
+toNat :: Tag -> Int
+toNat t = 
+  case elemIndex t [CC .. P] of
+    Just x -> x
+    Nothing -> undefined
