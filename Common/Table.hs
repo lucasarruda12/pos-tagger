@@ -1,7 +1,7 @@
 module Common.Table where
 
 import qualified Data.Map as Map
-import Data.List (maximumBy)
+import Data.List (maximumBy, unzip)
 import Data.Ord (comparing)
 
 newtype Table a b c = Table (Map.Map a (Map.Map b c))
@@ -25,3 +25,10 @@ prune (Table t) = Map.toList $ fmap filterMostFrequent t
   where
     filterMostFrequent :: Map.Map b Int -> b
     filterMostFrequent = fst . maximumBy (comparing snd) . Map.toList
+
+moveToIf :: (Ord a, Ord b) => (a -> a) -> (Int -> Bool) -> FrequencyTable a b -> FrequencyTable a b
+moveToIf f pred t'@(Table t) = addMany (fmap (\(a, b) -> (f a, b)) affected) $ deleteMany affected t'
+  where
+    affected = fmap (\(a, bs) -> (a, fst . head . Map.toList $ bs)) $ filter (pred . count . snd) $ (Map.toList t)
+    count = foldr (+) 0
+    deleteMany abs (Table t) = Table $ foldl (\acc (a', _) -> Map.delete a' acc) t abs

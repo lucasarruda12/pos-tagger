@@ -11,7 +11,6 @@ import Data.Tuple (swap)
 
 type Unigrams = FrequencyTable POS Tag
 
-
 main :: IO ()
 main =
   iterateUnless isEOF readAdd emptyft >>=
