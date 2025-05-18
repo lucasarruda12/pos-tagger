@@ -30,3 +30,9 @@ stupidBigramTrainer:
 
 stupidBigramTagger:
 	${GHC} -outputdir=${OUT} -o stupidBigramTagger.out ./Bigram/stupid/Tagger.hs
+
+bigramTrainer:
+	${GHC} -outputdir=${OUT} -o bigramTrainer.out ./Bigram/Trainer.hs
+
+bigramTagger:
+	${GHC} -outputdir=${OUT} -o bigramTagger.out ./Bigram/Tagger.hs
