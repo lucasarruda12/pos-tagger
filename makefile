@@ -22,4 +22,11 @@ unigramTrainer:
 	${GHC} -outputdir=${OUT} -o unigramTrainer.out ./Unigram/unknown/Trainer.hs
 
 unigramTagger:
-	${GHC} -outputdir=${OUT} -o unigramTagger.out ./Unigram/unknown/Tagger.hs
+	${GHC} -outputdir=${OUT} -o unigramTagger.out ./Unigram/Tagger.hs
+
+# Bigram
+stupidBigramTrainer:
+	${GHC} -outputdir=${OUT} -o stupidBigramTrainer.out ./Bigram/stupid/Trainer.hs
+
+stupidBigramTagger:
+	${GHC} -outputdir=${OUT} -o stupidBigramTagger.out ./Bigram/stupid/Tagger.hs

@@ -22,18 +22,6 @@ populateSearchMap handle um = do
     pure . add um >>= -- add it to the searchTree
     populateSearchMap handle -- keep it going!
 
-splitOn :: Eq a => a -> [a] -> [[a]]
-splitOn _ [] = [[]]
-splitOn delim xs = go xs
-  where
-    go [] = [[]]
-    go (y:ys)
-      | y == delim = [] : go ys
-      | otherwise =
-          case go ys of
-            (z:zs) -> (y : z) : zs
-            []     -> [[y]]  -- Should not happen
-
 -- Maybe Tag to deal with the possibility that ive
 -- not seen the word before. when using the UNK-tagged
 -- input files it should always return a Just-valued Tag.
@@ -60,7 +48,7 @@ main = do
 
   sequence_ $ repeat ( 
     getLine >>= -- read a line from stdin
-    pure . splitOn ' ' >>= -- split at the spaces
+    pure . words >>= -- split at the spaces
     pure . tagSentence um >>= -- tag the words
     putStrLn . prettyPrint) -- and put it to stdout
 
