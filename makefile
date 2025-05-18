@@ -5,21 +5,21 @@ default:
 	echo "sorry"
 
 # Util
-Tester:
-	${GHC} -outputdir=${OUT} -o tester.out ./Util/Tester.hs
+rt:
+	${GHC} -outputdir=${OUT} -o rt.out ./Util/RemoveTags.hs
 
-BuildConfusionMatrix:
-	${GHC} -outputdir=${OUT} -o bcm.out ./Util/BuildConfusionMatrix.hs
+cm:
+	${GHC} -outputdir=${OUT} -o cm.out ./Util/BuildConfusionMatrix.hs
 
 # Unigram
-stupidUnigramDriver:
-	${GHC} -outputdir=${OUT} -o unigramDriver.out ./Unigram/stupid/Driver.hs
+stupidUnigramTrainer:
+	${GHC} -outputdir=${OUT} -o stupidUnigramTrainer.out ./Unigram/stupid/Trainer.hs
 
 stupidUnigramTagger:
-	${GHC} -outputdir=${OUT} -o unigramTagger.out ./Unigram/stupid/Tagger.hs
+	${GHC} -outputdir=${OUT} -o stupidUnigramTagger.out ./Unigram/stupid/Tagger.hs
 
-unkUnigramDriver:
-	${GHC} -outputdir=${OUT} -o unigramDriver.out ./Unigram/unknown/Driver.hs
+unigramTrainer:
+	${GHC} -outputdir=${OUT} -o unigramTrainer.out ./Unigram/unknown/Trainer.hs
 
-unkUnigramTagger:
+unigramTagger:
 	${GHC} -outputdir=${OUT} -o unigramTagger.out ./Unigram/unknown/Tagger.hs
