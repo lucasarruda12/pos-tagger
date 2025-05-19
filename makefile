@@ -27,12 +27,17 @@ unigramTagger:
 # Bigram
 stupidBigramTrainer:
 	${GHC} -outputdir=${OUT} -o stupidBigramTrainer.out ./Bigram/stupid/Trainer.hs
-
 stupidBigramTagger:
 	${GHC} -outputdir=${OUT} -o stupidBigramTagger.out ./Bigram/stupid/Tagger.hs
 
 bigramTrainer:
 	${GHC} -outputdir=${OUT} -o bigramTrainer.out ./Bigram/Trainer.hs
-
 bigramTagger:
 	${GHC} -outputdir=${OUT} -o bigramTagger.out ./Bigram/Tagger.hs
+
+# Tag-Considering Bigram
+tagBigramTrainer:
+	${GHC} -outputdir=${OUT} -o tagBigramTrainer.out ./TagBigram/Trainer.hs
+
+tagBigramTagger:
+	${GHC} -outputdir=${OUT} -o tagBigramTagger.out ./TagBigram/Tagger.hs

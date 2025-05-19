@@ -7,15 +7,6 @@ import Common.POS
 
 type TaggedPOS = (Tag, POS)
 
--- A tag is one of those 36 Penn Treebank
--- tags. Pontuation and tags that contain
--- a $ are singled out because of finicky
--- haskell syntax and Read derivation
-tag :: Parser Tag
-tag = pontuation 
-  <|> fmap (const PRPs) (string "PRP$")
-  <|> fmap (const WPs) (string "WP$")
-  <|> (Parser reads)
 
 -- Pontutation is one of: , `` . :
 pontuation :: Parser Tag
@@ -48,6 +39,16 @@ taggedpos = do
 -- separated by a space
 line :: Parser [TaggedPOS]
 line = taggedpos `sepBy` char ' '
+--
+-- A tag is one of those 36 Penn Treebank
+-- tags. Pontuation and tags that contain
+-- a $ are singled out because of finicky
+-- haskell syntax and Read derivation
+tag :: Parser Tag
+tag = pontuation 
+  <|> fmap (const PRPs) (string "PRP$")
+  <|> fmap (const WPs) (string "WP$")
+  <|> (Parser reads)
 
 -- Primitive Parts of a general parser,
 -- used as a base for my TaggedPOS Parser
