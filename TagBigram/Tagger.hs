@@ -19,8 +19,8 @@ main = do
   sequence_ $ repeat (
     getLine >>=
     pure . words >>=
-    pure . tagSentence am . reverse >>=
-    putStrLn . prettyPrint . reverse)
+    pure . tagSentence am >>=
+    putStrLn . prettyPrint)
 
   hClose handle 
 
