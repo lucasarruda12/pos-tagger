@@ -11,6 +11,7 @@ type Bigrams = FrequencyTable Bigram Tag
 main :: IO ()
 main = 
   readUntilEOF emptyft >>=
+  pure . moveToIf (\(Bigram pred _) -> Bigram pred XX) (<2) >>=
   pure . moveToIf (\(Bigram _ given) -> Bigram "UNK" given) (<2) >>=
   pure . prune >>=
   putStrLn . prettyPrint

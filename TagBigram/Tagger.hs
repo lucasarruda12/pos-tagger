@@ -52,9 +52,12 @@ tagBigram am b@(Bigram pred given) =
   case (Map.lookup b am) of
   Just t -> (t, pred)
   Nothing -> 
-    case (Map.lookup (Bigram "UNK" given) am) of
+    case (Map.lookup (Bigram pred XX) am) of
     Just t -> (t, pred)
-    Nothing -> (XX, pred)
+    Nothing -> 
+      case (Map.lookup (Bigram "UNK" XX) am) of
+      Just t -> (t, pred)
+      Nothing -> (XX, pred)
 
 tagSentence :: AssociationMap -> [POS] -> [(Tag, POS)]
 tagSentence am ws = tagWithPrevTag BOS ws
