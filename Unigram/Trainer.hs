@@ -11,8 +11,8 @@ type Unigrams = FrequencyTable POS Tag
 
 main :: IO ()
 main =
-  readUntilEOF emptyft >>= -- Read stdin into a map
-  pure . moveToIf (const "UNK") (< 2) >>=       -- Mark uncommon words
+readUntilEOF emptyft >>= -- Read stdin into a map
+pure . moveToIf (const "UNK") (< 2) >>=       -- Mark uncommon words
   pure . prune >>=                -- prune only the most common Tag
   pure . prettyPrint >>=          -- show lines as pos_tag\n
   putStrLn                        -- put it to stdout
